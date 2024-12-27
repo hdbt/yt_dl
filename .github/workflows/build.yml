@@ -1,0 +1,73 @@
+name: Build EXE
+
+on:
+  push:
+    branches: [ "main" ]   # or whichever branches you want to trigger on. test
+    tags: [ "*" ]
+  pull_request:
+    branches: [ "main" ]   # optional: build on pull requests too
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v3
+      with:
+        lfs: true
+
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.9"  # or any version you prefer
+        architecture: 'x64'    # ensure 64-bit
+    - name: Check Python architecture
+      run: python -c "import platform; print(platform.architecture())"
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Build EXE with PyInstaller
+      run: |
+        # Example PyInstaller command:
+        #   --onefile        => single-file exe
+        #   --noconsole      => hide console (if you only want the GUI)
+        #   --add-binary     => if bundling ffmpeg.exe
+        #
+        # Adjust paths & filenames as needed:
+        pyinstaller --onefile  --add-binary "ffmpeg.exe;."   --add-data "loading.gif;." --add-data "overlay.gif;."  youtube_to_mp3.py
+
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: youtube_to_mp3_exe
+        path: dist/youtube_to_mp3.exe
+    - name: Debug ffmpeg
+      run: |
+        echo "Listing ffmpeg.exe..."
+        dir ffmpeg.exe
+        powershell "Get-FileHash ffmpeg.exe"
+    # - name: Create GitHub Release
+    #   if: startsWith(github.ref, 'refs/tags/')
+    #   uses: ncipollo/release-action@v1
+    #   with:
+    #     token: ${{ secrets.GITHUB_TOKEN }}
+    #     body: "Auto-generated release for ${{ github.ref }}"
+    #     artifacts: "dist/youtube_to_mp3.exe"
+    #     # If you want a custom release name :
+    #     tag: ${{ github.ref }}
+    #     name: "Release ${{ github.ref }}"
+    - name: Create GitHub Release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: ncipollo/release-action@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        tag: ${{ github.ref_name }}
+        name: "Release ${{ github.ref_name }}"
+        body: "Auto-generated release for ${{ github.ref_name }}"
+        draft: false
+        prerelease: false
+        artifacts: "dist/youtube_to_mp3.exe"

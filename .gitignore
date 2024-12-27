@@ -1,0 +1,4 @@
+build/
+etc/
+dist/
+ffmpeg.exe

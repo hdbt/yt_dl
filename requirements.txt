@@ -1,0 +1,6 @@
+yt-dlp
+pillow
+pyinstaller
+tk
+pytest
+# any other dependencies you need..
