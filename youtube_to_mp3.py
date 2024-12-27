@@ -1,5 +1,7 @@
 import os
 import sys
+import requests
+import datetime
 import threading
 import tkinter as tk
 import tkinter.messagebox as messagebox
@@ -126,7 +128,7 @@ def bulk_download():
 
     # Re-enable the button
     download_button.config(state=tk.NORMAL)
-    progress_label.config(text="All downloads finished!")
+    progress_label.config(text="Alle Downloads fertig, Babylein!")
 
     # Stop/hide the overlay GIF after all downloads
     stop_overlay_gif()
@@ -277,13 +279,71 @@ def animate_overlay_gif():
     # Schedule the next frame
     root.after(100, animate_overlay_gif)  # Adjust speed as needed (100 ms)
 
+# ------------------------------------
+#  GitHub Update Logic
+# ------------------------------------
+GITHUB_USER = "hdbt"
+GITHUB_REPO = "yt_dl"
+ASSET_NAME = "youtube_to_mp3.exe"  # The name of the release asset on GitHub
+def check_for_update():
+    """
+    Checks the latest release on GitHub, downloads the .exe, and saves it
+    as youtube_to_mp3_new.exe. Then prompts the user to replace the old file.
+    """
+    try:
+        # 1. Get latest release info via GitHub API
+        api_url = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/releases/latest"
+        headers = {
+            "Accept": "application/vnd.github.v3+json"
+        }
+        response = requests.get(api_url, headers=headers, timeout=15)
+        response.raise_for_status()
+        release_data = response.json()
+
+        # 2. Locate the .exe asset in the release
+        assets = release_data.get("assets", [])
+        download_url = None
+        for asset in assets:
+            if asset.get("name") == ASSET_NAME:
+                download_url = asset.get("browser_download_url")
+                break
+
+        if not download_url:
+            messagebox.showerror("Update Error", f"No asset named {ASSET_NAME} found in latest release.")
+            return
+
+        # 3. Download the new .exe
+        lbl = str(datetime.datetime.today()).split()[0]
+        new_filename = f"youtube_to_mp3_{lbl}.exe"
+        message_label.config(text="Downloading update...")
+        with requests.get(download_url, stream=True, timeout=60) as r:
+            r.raise_for_status()
+            with open(new_filename, 'wb') as f:
+                for chunk in r.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
+
+        # 4. Let the user know
+        message_label.config(text="Download complete.")
+        messagebox.showinfo("Update Downloaded",
+                            f"The new version was saved as {new_filename}.\n\n"
+                            "Please close this application and replace the old .exe "
+                            f"with {new_filename} to update.")
+
+    except Exception as e:
+        messagebox.showerror("Update Error", f"Failed to update:\n{e}")
+
+
 ############################################
 # 6) GUI Setup (tkinter)
 ############################################
 root = tk.Tk()
-root.title("YouTube Downloader (Audio/Video) - With Two GIFs!")
-root.geometry("600x500")
+root.title("YouTube Downloader für das Blein")
+root.geometry("600x600")
 root.resizable(False, False)
+# Add an "Update" button
+update_button = tk.Button(root, text="🌐", command=check_for_update)
+update_button.pack(anchor = "e", side = "top")
 
 instruction_label = tk.Label(root, text="Ein YouTube link pro Zeile:")
 instruction_label.pack(pady=(10, 5))
@@ -300,7 +360,7 @@ video_radiobutton = tk.Radiobutton(root, text="Download als MP4 (Video)", variab
 audio_radiobutton.pack()
 video_radiobutton.pack()
 
-download_button = tk.Button(root, text="Download & Convert", command=download_videos_threaded)
+download_button = tk.Button(root, text="Download & Konvertieren", command=download_videos_threaded)
 download_button.pack(pady=10)
 
 # Progress bar
@@ -321,5 +381,10 @@ overlay_label.place_forget()  # Hide initially
 # Load both sets of GIF frames at startup
 load_gif_frames()
 load_overlay_gif_frames()
+
+
+
+message_label = tk.Label(root, text="Downloade das Update für Bebe", fg="blue")
+message_label.pack(pady=10)
 
 root.mainloop()
