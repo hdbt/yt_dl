@@ -2,3 +2,5 @@ build/
 etc/
 dist/
 ffmpeg.exe
+*.mp3
+*.exe
