@@ -1,7 +1,7 @@
 yt-dlp
 pillow
+requests
 pyinstaller
 tk
 pytest
-requests
 # any other dependencies you need..
