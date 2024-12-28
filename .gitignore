@@ -4,3 +4,4 @@ dist/
 ffmpeg.exe
 *.mp3
 *.exe
+*.spec

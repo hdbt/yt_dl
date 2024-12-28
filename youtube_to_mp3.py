@@ -1,13 +1,15 @@
 import os
 import sys
-import requests
 import datetime
 import threading
+import requests
 import tkinter as tk
 import tkinter.messagebox as messagebox
 import tkinter.ttk as ttk
 from tkinter import PhotoImage
 from yt_dlp import YoutubeDL
+
+
 
 ############################################
 # 1) Helper: Determine ffmpeg.exe location
@@ -382,9 +384,10 @@ overlay_label.place_forget()  # Hide initially
 load_gif_frames()
 load_overlay_gif_frames()
 
-
-
-message_label = tk.Label(root, text="Downloade das Update für Bebe", fg="blue")
+message_label = tk.Label(root, text="", fg="purple")
 message_label.pack(pady=10)
+
+icon_img = PhotoImage(file=get_path("overlay.gif") )   # or "my_icon.gif"
+root.iconphoto(False, icon_img)
 
 root.mainloop()
