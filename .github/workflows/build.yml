@@ -17,6 +17,8 @@ jobs:
       with:
         lfs: true
 
+    - name: Unzip ffmpeg
+      run: 7z x ffmpeg.7z
 
     - name: Set up Python
       uses: actions/setup-python@v4
