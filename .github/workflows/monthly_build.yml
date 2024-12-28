@@ -19,7 +19,8 @@ jobs:
         with:
           python-version: '3.9'
           architecture: 'x64'
-
+      - name: Unzip ffmpeg
+        run: 7z x ffmpeg.7z -y
       # 3) Install dependencies (test + build)
       - name: Install dependencies
         run: |
