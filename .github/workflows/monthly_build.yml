@@ -57,3 +57,4 @@ jobs:
           draft: false
           prerelease: false
           artifacts: "dist/youtube_to_mp3.exe"
+          commitish: ${{ github.sha }}  # Or "main"
