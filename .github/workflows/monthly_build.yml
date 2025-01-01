@@ -2,7 +2,7 @@ name: Monthly Build & Release
 
 on:
   schedule:
-    - cron: '00 17 1 * *'
+    - cron: '30 17 1 * *'
 
 jobs:
   build-and-release:
@@ -64,4 +64,4 @@ jobs:
           draft: false
           prerelease: false
           artifacts: "dist/youtube_to_mp3.exe"
-          commitish: main  # Or "main"
+          commit: main  # Or "main"
