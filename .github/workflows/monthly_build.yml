@@ -2,7 +2,7 @@ name: Monthly Build & Release
 
 on:
   schedule:
-    - cron: '30 17 1 * *'
+    - cron: '00 18 1 * *'
 
 jobs:
   build-and-release:
@@ -13,8 +13,8 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
         with:
+          ref: main
           fetch-depth: 0
-
       # 2) Set up Python (64-bit)
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -54,6 +54,9 @@ jobs:
           echo "GITHUB_REF_NAME=$GITHUB_REF_NAME"
 
       # 7) Create GitHub Release (only if tests/build succeeded)
+      - name: Determine HEAD commit
+        id: get_commit
+        run: echo "COMMIT=$(git rev-parse HEAD)" >> $GITHUB_ENV
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1
         with:
@@ -64,4 +67,4 @@ jobs:
           draft: false
           prerelease: false
           artifacts: "dist/youtube_to_mp3.exe"
-          commit: main  # Or "main"
+          commit: ${{ env.COMMIT }}           # The commit we captured above
