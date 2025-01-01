@@ -326,11 +326,11 @@ def check_for_update():
                         f.write(chunk)
 
         # 4. Let the user know
-        message_label.config(text="Download complete.")
-        messagebox.showinfo("Update Downloaded",
-                            f"The new version was saved as {new_filename}.\n\n"
-                            "Please close this application and replace the old .exe "
-                            f"with {new_filename} to update.")
+        message_label.config(text="Download kompletto.")
+        messagebox.showinfo("Update gedownloaded",
+                            f"Neue version wurde als {new_filename} gespeichert.\n\n"
+                            "Schließe das Programm und nutze die neue Exe "
+                            f"{new_filename}.")
 
     except Exception as e:
         messagebox.showerror("Update Error", f"Failed to update:\n{e}")
@@ -340,7 +340,7 @@ def check_for_update():
 # 6) GUI Setup (tkinter)
 ############################################
 root = tk.Tk()
-root.title("YouTube Downloader für das Blein")
+root.title("YouTube Downloader für das Bebe")
 root.geometry("600x600")
 root.resizable(False, False)
 # Add an "Update" button

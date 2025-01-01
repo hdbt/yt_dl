@@ -37,9 +37,7 @@ jobs:
       - name: Build EXE
         run: |
           # e.g. "youtube_to_mp3.py" is your main script
-          pyinstaller -i 'ico.ico' --onefile --noconsole ^
-            --add-binary "ffmpeg.exe;." ^
-            youtube_to_mp3.py
+          pyinstaller --onefile  --hide-console=hide-early --add-binary "ffmpeg.exe;."   --add-data "loading.gif;." --add-data "overlay.gif;." --icon=favicon.ico  youtube_to_mp3.py
 
       # 6) Generate a date-based tag name (e.g. "v2024-03-01")
       - name: Prepare release tag
