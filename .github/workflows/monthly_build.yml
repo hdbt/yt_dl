@@ -2,7 +2,7 @@ name: Monthly Build & Release
 
 on:
   schedule:
-    - cron: '00 16 1 * *'
+    - cron: '00 17 1 * *'
 
 jobs:
   build-and-release:
@@ -12,6 +12,8 @@ jobs:
       # 1) Check out code
       - name: Check out repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       # 2) Set up Python (64-bit)
       - name: Set up Python
@@ -45,6 +47,11 @@ jobs:
         run: |
           echo "TAG=v$(echo $(date +%Y-%m-%d))" >> $GITHUB_ENV
           echo "RELEASE_NAME=Monthly Release $(date +%Y-%m-%d)" >> $GITHUB_ENV
+      - name: Debug env
+        run: |
+          echo "GITHUB_REF=$GITHUB_REF"
+          echo "GITHUB_SHA=$GITHUB_SHA"
+          echo "GITHUB_REF_NAME=$GITHUB_REF_NAME"
 
       # 7) Create GitHub Release (only if tests/build succeeded)
       - name: Create GitHub Release
@@ -57,4 +64,4 @@ jobs:
           draft: false
           prerelease: false
           artifacts: "dist/youtube_to_mp3.exe"
-          commitish: ${{ github.sha }}  # Or "main"
+          commitish: main  # Or "main"
