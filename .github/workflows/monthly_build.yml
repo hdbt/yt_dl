@@ -2,59 +2,59 @@ name: Monthly Build & Release
 
 on:
   schedule:
-    - cron: '0 0 1 * *'
+    - cron: '10 11 2 * *'
 
 jobs:
   build-and-release:
     runs-on: windows-latest
 
     steps:
-      # 1) Check out code
       - name: Check out repository
         uses: actions/checkout@v3
+        with:
+          ref: main
+          fetch-depth: 0
 
-      # 2) Set up Python (64-bit)
-      - name: Set up Python
+      - name: Set up Python (64-bit)
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
           architecture: 'x64'
+
       - name: Unzip ffmpeg
         run: 7z x ffmpeg.7z -y
-      # 3) Install dependencies (test + build)
-      - name: Install dependencies
+
+      - name: Install dependencies (test + build)
         run: |
           pip install --upgrade pip
           pip install -r requirements.txt
 
-      # 4) Run tests
       - name: Run tests
         run: |
-          # Example: if you have pytest or unittest
           pytest --maxfail=1 --disable-warnings || exit 1
 
-      # 5) Build EXE with PyInstaller
-      - name: Build EXE
-        run: |
-          # e.g. "youtube_to_mp3.py" is your main script
-          pyinstaller --onefile  --hide-console=hide-early --add-binary "ffmpeg.exe;."   --add-data "loading.gif;." --add-data "overlay.gif;." --icon=favicon.ico  youtube_to_mp3.py
+      - name: Build EXE with PyInstaller
+        run: pyinstaller --onefile  --hide-console=hide-early --add-binary "ffmpeg.exe;."   --add-data "loading.gif;." --add-data "overlay.gif;." --icon=favicon.ico  youtube_to_mp3.py
 
-      # 6) Generate a date-based tag name (e.g. "v2024-03-01")
       - name: Prepare release tag
         id: prepare_tag
         run: |
-          echo "TAG=v$(echo $(date +%Y-%m-%d))" >> $GITHUB_ENV
+          echo "TAG=v$(date +%Y-%m-%d)" >> $GITHUB_ENV
           echo "RELEASE_NAME=Monthly Release $(date +%Y-%m-%d)" >> $GITHUB_ENV
 
-      # 7) Create GitHub Release (only if tests/build succeeded)
+      - name: Determine HEAD commit
+        id: get_commit
+        run: echo "COMMIT=$(git rev-parse HEAD)" >> $GITHUB_ENV
+
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ env.TAG }}                # e.g. "v2024-03-01"
-          name: ${{ env.RELEASE_NAME }}      # e.g. "Monthly Release 2024-03-01"
+          tag: ${{ env.TAG }}
+          commit: ${{ env.COMMIT }}       # <--- The HEAD commit of main
+          name: ${{ env.RELEASE_NAME }}
           body: "Automated monthly release."
           draft: false
           prerelease: false
           artifacts: "dist/youtube_to_mp3.exe"
-          commitish: ${{ github.sha }}  #  Or "main"
+          commitish: ${{ github.sha }}  # Or "main"
