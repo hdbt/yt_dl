@@ -3,7 +3,7 @@ name: Monthly Build and Release
 on:
   schedule:
     # Runs on the first day of each month at midnight UTC
-    - cron: '00 11 2 * *'
+    - cron: '05 16 2 * *'
 
 jobs:
   build-and-release:
@@ -45,23 +45,33 @@ jobs:
         with:
           name: youtube_to_mp3_exe
           path: dist/youtube_to_mp3.exe
-      # Step 5: Create a new GitHub release
+      # # Step 5: Create a new GitHub release
+      # - name: Create Release
+      #   id: create_release
+      #   uses: actions/create-release@v1
+      #   with:
+      #     tag_name: v${{ github.run_number }}
+      #     release_name: Monthly Build Release - ${{ github.run_number }}
+      #     draft: false
+      #     prerelease: false
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # # Step 6: Upload the `.exe` file to the release
+      # - name: Upload to release
+      #   uses: actions/upload-release-asset@v1
+      #   with:
+      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+      #     asset_path: dist/  # Path to the built .exe file
+      #     asset_name: youtube_to_mp3.exe  # Name of the .exe file
+      #     asset_content_type: application/octet-stream
       - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
+        uses: elgohr/Github-Release-Action@v5
+        env:
+          GH_ENTERPRISE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ github.run_number }}
+          title: Monthly Build elgohr Release - ${{ github.run_number }}
+          tag: v${{ github.run_number }}
           release_name: Monthly Build Release - ${{ github.run_number }}
           draft: false
           prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # Step 6: Upload the `.exe` file to the release
-      - name: Upload to release
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: dist/youtube_to_mp3.exe  # Path to the built .exe file
-          asset_name: youtube_to_mp3.exe  # Name of the .exe file
-          asset_content_type: application/octet-stream
