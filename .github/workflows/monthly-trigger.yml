@@ -1,0 +1,39 @@
+name: Monthly Empty Commit with Tag
+
+on:
+  schedule:
+    # Runs on the first day of each month at midnight UTC
+    - cron: '0 13 2 * *'
+
+jobs:
+  trigger-workflow:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Configure Git
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      # Step 3: Create an empty commit with the current date
+      - name: Create empty commit
+        run: |
+          DATE=$(date -u +"%Y-%m-%d")
+          git commit --allow-empty -m "Trigger workflow for ${DATE}"
+
+      # Step 4: Tag the commit with the current date
+      - name: Tag the commit
+        run: |
+          DATE=$(date -u +"%Y-%m-%d")
+          git tag "${DATE}"
+          git push origin --tags
+
+      # Step 5: Push the empty commit to the repository
+      - name: Push empty commit
+        run: |
+          git push origin HEAD
