@@ -56,6 +56,7 @@ jobs:
       #     prerelease: false
       #   env:
       #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #
 
       # # Step 6: Upload the `.exe` file to the release
       # - name: Upload to release

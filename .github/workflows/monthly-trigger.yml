@@ -1,38 +1,56 @@
-name: Monthly Empty Commit with Tag
-
+name: Monthly Build and Release II
 on:
   schedule:
-    - cron: '0 16 2 * *'
+    # Runs on the first day of each month at midnight UTC
+    - cron: '00 17 2 * *'
 
 jobs:
-  trigger-workflow:
-    runs-on: ubuntu-latest
+  build-and-release:
+    runs-on: windows-latest
 
     steps:
-      # Step 1: Checkout the repository
+      # Step 1: Checkout the code
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      # Step 2: Configure Git
-      - name: Configure Git
+      # Step 2: Set up environment (optional for Python/Node.js/other projects)
+      - name: Set up Python environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          architecture: 'x64'
+      - name: Unzip ffmpeg
+        run: 7z x ffmpeg.7z -y
+      # 3) Install dependencies (test + build)
+      - name: Install dependencies
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          pip install --upgrade pip
+          pip install -r requirements.txt
 
-      # Step 3: Create an empty commit with the current date
-      - name: Create empty commit
+      # 4) Run tests
+      - name: Run tests
         run: |
-          DATE=$(date -u +"%Y-%m-%d")
-          git commit --allow-empty -m "Trigger workflow for ${DATE}"
+          # Example: if you have pytest or unittest
+          pytest --maxfail=1 --disable-warnings || exit 1
 
-      # Step 4: Tag the commit with the current date
-      - name: Tag the commit
+      # 5) Build EXE with PyInstaller
+      - name: Build EXE
         run: |
-          DATE=$(date -u +"%Y-%m-%d")
-          git tag "${DATE}"
-          git push origin --tags
+          # e.g. "youtube_to_mp3.py" is your main script
+          pyinstaller --onefile  --hide-console=hide-early --add-binary "ffmpeg.exe;."   --add-data "loading.gif;." --add-data "overlay.gif;." --icon=favicon.ico  youtube_to_mp3.py
 
-      # Step 5: Push the empty commit to the repository
-      - name: Push empty commit
-        run: |
-          git push origin HEAD
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: youtube_to_mp3_exe
+          path: dist/youtube_to_mp3.exe
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.run_number }}
+          name: "Release ${{ github.run_number }}"
+          body: "Auto-generated release for ${{ github.run_number }}"
+          draft: false
+          prerelease: false
+          artifacts: "dist/youtube_to_mp3.exe"
