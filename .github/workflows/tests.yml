@@ -2,7 +2,7 @@ name: Test Schedule
 
 on:
   schedule:
-    - cron: '0 0 1 * *'
+    - cron: '10 16 2 * *'
 
 jobs:
   test:
