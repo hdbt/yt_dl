@@ -23,7 +23,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: "3.15"  # or any version you prefer
+        python-version: "3.14"  # or any version you prefer
         architecture: 'x64'    # ensure 64-bit
     - name: Check Python architecture
       run: python -c "import platform; print(platform.architecture())"
