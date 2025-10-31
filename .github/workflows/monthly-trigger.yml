@@ -17,7 +17,7 @@ jobs:
       - name: Set up Python environment
         uses: actions/setup-python@v4
         with:
-          python-version: '3.14'
+          python-version: '3.x'
           architecture: 'x64'
       - name: Unzip ffmpeg
         run: 7z x ffmpeg.7z -y
